@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Installs HAProxy on lb-01 with round-robin backends to web-01 and web-02 (edit IPs below)
+web_01_ip="18.207.188.40"
+web_02_ip="34.201.39.158"
+
+sudo apt-get update -y
+sudo apt-get install haproxy -y
+
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOF
+global
+	log /dev/log	local0
+	chroot /var/lib/haproxy
+	stats socket /run/haproxy/admin.sock mode 660 level admin
+	stats timeout 30s
+	user haproxy
+	group haproxy
+	daemon
+
+defaults
+	log	global
+	mode	http
+	option	httplog
+	option	dontlognull
+	timeout connect	5000
+	timeout client	50000
+	timeout server	50000
+
+frontend http_front
+	bind *:80
+	mode http
+	default_backend http_back
+
+backend http_back
+	balance roundrobin
+	server web-01 ${web_01_ip}:80 check
+	server web-02 ${web_02_ip}:80 check
+EOF
+
+echo "ENABLED=1" | sudo tee /etc/default/haproxy > /dev/null
+sudo service haproxy restart

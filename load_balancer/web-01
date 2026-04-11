@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-# server-01 login
-
-# ssh-agent
-eval $("ssh-agent")
-
-# path
+# SSH helper: connect to web-01 (update IP and key path as needed)
+eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/school
-
-# username and ip
-ssh ubuntu@18.204.221.80
+ssh ubuntu@18.207.188.40
