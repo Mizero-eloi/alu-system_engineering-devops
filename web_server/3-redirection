@@ -1,17 +1,58 @@
 #!/usr/bin/env bash
-# Installs Nginx and adds a 301 permanent redirect from /redirect_me to a YouTube URL
-sudo apt-get update -y
-sudo apt-get install nginx -y
-echo "Holberton School for the win!" | sudo tee /var/www/html/index.html > /dev/null
+# Configuring Nginx for 301 redirect
 
-conf=/etc/nginx/sites-available/default
-tmp_file="$(mktemp)"
-awk '/server_name _;/ {
-  print
-  print "\trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;"
-  next
+# Update package list and install nginx
+apt-get -y update
+apt-get install -y nginx
+
+# Create the index.html file
+echo "Holberton School for the win!" > /var/www/html/index.html
+
+# Stop nginx before configuration changes
+service nginx stop 2>/dev/null || true
+
+# Backup original configuration
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak 2>/dev/null || true
+
+# Configure nginx with proper server block
+cat << 'EOF' > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    
+    server_name _;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
 }
-{ print }' "$conf" | sudo tee "$tmp_file" > /dev/null
-sudo mv "$tmp_file" "$conf"
+EOF
 
-sudo service nginx restart
+# Remove any existing symlink and create new one
+rm -f /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Test nginx configuration
+nginx -t
+
+# Start nginx service
+service nginx start
+
+# Force reload configuration
+nginx -s reload 2>/dev/null || service nginx reload
+
+# Give nginx a moment to fully start
+sleep 2
+
+# Verify nginx is running
+if ! pgrep nginx > /dev/null; then
+    echo "Starting nginx..."
+    service nginx start
+fi

@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# installing and updating packages
+sudo apt-get update
+sudo apt-get install curl -y
+
+# installing apache software
+sudo apt-get install -y apache2
+
+# starting apache service
+sudo service apache2 start
+
+# changing ownership of the web directory
+sudo chown -R "$USER:$USER" /var/www/html
+
+# changing ownership of configuration files
+sudo chown -R "$USER:$USER" /etc/apache2/
+
+# changing ownership of the ports configuration file
+sudo chown -R "$USER:$USER" /etc/apache2/ports.conf
+
+# updating the index.html file
+echo "Hello Holberton" > /var/www/html/index.html
+
+# editing the apache virtual host configuration
+echo "
+<VirtualHost *:80 *:8080>
+	serveradmin webmaster@localhost
+	documentroot /var/www/html
+
+	errorlog ${APACHE_LOG_DIR}/error.log
+	customlog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+" > /etc/apache2/sites-available/000-default.conf
+
+# configuring ports.conf to listen on port 8080
+echo "
+listen 80
+listen 8080
+
+<ifmodule ssl_module>
+	listen 443
+</ifmodule>
+
+<ifmodule mod_gnutls.c>
+	listen 443
+</ifmodule>
+" > /etc/apache2/ports.conf
+
+# setting server name to localhost
+echo "serverName localhost" >> /etc/apache2/apache2.conf
+
+# changing ownership back to root
+sudo chown -R root:root /etc/apache2/apache2.conf
+sudo chown -R root:root /etc/apache2/sites-available/000-default.conf
+sudo chown -R root:root /etc/apache2/ports.conf
+sudo chown -R root:root /var/www/html/index.html
+
+# restarting apache service
+sudo service apache2 restart

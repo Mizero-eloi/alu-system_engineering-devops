@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Installs Nginx on Ubuntu, listens on port 80, serves a page containing Holberton School
-sudo apt-get update -y
-sudo apt-get install nginx -y
-echo "Holberton School for the win!" | sudo tee /var/www/html/index.html > /dev/null
-sudo service nginx restart
+# installing nginx
+
+apt-get update -y
+apt-get install -y nginx
+chown -R www-data:www-data /var/www/html
+echo "Holberton School for the win!" > /var/www/html/index.html
+service nginx restart
