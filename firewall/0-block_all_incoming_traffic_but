@@ -7,22 +7,14 @@ apt-get install -y ufw
 # Reset ufw to default (clears existing rules)
 ufw --force reset
 
-# Set default policies - deny drops packets (shows as filtered)
+# Set default policies
 ufw default deny incoming
-ufw default deny outgoing
+ufw default allow outgoing
 
 # Allow required TCP ports
-ufw allow in 22/tcp
-ufw allow in 443/tcp
-ufw allow in 80/tcp
-
-# Allow outgoing on required ports too
-ufw allow out 22/tcp
-ufw allow out 443/tcp
-ufw allow out 80/tcp
-ufw allow out 80/udp
-ufw allow out 53
-ufw allow out 443
+ufw allow 22/tcp
+ufw allow 443/tcp
+ufw allow 80/tcp
 
 # Enable ufw
 ufw --force enable
