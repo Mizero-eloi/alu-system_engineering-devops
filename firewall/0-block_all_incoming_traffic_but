@@ -1,7 +1,10 @@
 #!/bin/bash
 # setting up firewall
 
-# Set default policies BEFORE adding allow rules
+# Reset any existing ufw configuration to avoid conflicts
+sudo ufw --force reset
+
+# Set default policies FIRST
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
@@ -10,8 +13,11 @@ sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Enable firewall (this will prompt for confirmation with 'y')
+# Enable ufw (this applies all rules including default deny)
 sudo ufw --force enable
 
-# Verify status
+# Reload to ensure rules are active
+sudo ufw reload
+
+# Show status for verification
 sudo ufw status verbose
