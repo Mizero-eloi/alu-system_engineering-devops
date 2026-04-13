@@ -1,12 +1,23 @@
-#!/bin/bash
-# setting up firewall
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw enable
+#!/usr/bin/env bash
+# Configures ufw to block all incoming traffic except TCP ports 22, 443, and 80
 
-# Change default INPUT policy from REJECT to DROP
-sudo sed -i 's/DEFAULT_INPUT_POLICY="REJECT"/DEFAULT_INPUT_POLICY="DROP"/' /etc/default/ufw
-sudo ufw reload
+# Install ufw if not already installed
+apt-get install -y ufw
+
+# Reset ufw to default (clears existing rules)
+ufw --force reset
+
+# Set default policies
+ufw default deny incoming
+ufw default allow outgoing
+
+# Allow required TCP ports
+ufw allow 22/tcp
+ufw allow 443/tcp
+ufw allow 80/tcp
+
+# Enable ufw
+ufw --force enable
+
+# Show status
+ufw status verbose
