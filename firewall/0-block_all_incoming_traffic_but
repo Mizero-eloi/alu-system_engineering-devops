@@ -7,7 +7,7 @@ sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw enable
 
-# Ensure input policy is DROP (filtered) not REJECT (closed)
-sudo ufw default deny incoming
-sudo iptables -P INPUT DROP
+# Change REJECT rules to DROP so ports appear as "filtered" not "closed"
+sudo sed -i 's/-j REJECT --reject-with icmp-port-unreachable/-j DROP/g' /etc/ufw/before.rules
+sudo sed -i 's/-j REJECT --reject-with tcp-reset/-j DROP/g' /etc/ufw/before.rules
 sudo ufw reload
